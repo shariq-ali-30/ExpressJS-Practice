@@ -4,26 +4,68 @@ const app = express();
 
 app.use(express.json());
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
-
 app.get("/", (req, res) => {
   res.json({ message: "Hello, World!" });
 });
 
-const users = [];
+let users = [
+  {
+    username: "shariq",
+    age: 19,
+  },
+  {
+    username: "arham",
+    age: 18,
+  },
+];
 
-app.post("/signup", (req, res) => {
+// Create User
+app.post("/user", (req, res) => {
   users.push(req.body);
-  console.log("User signed up:", req.body);
-  res.json({ message: "User signed up successfully!", users: users });
+  res.json({ message: "User created successfully!", users });
 });
 
-app.delete("/user", (req, res) => {
-  res.json({ message: "User deleted successfully!" });
+// Read All Users
+app.get("/user", (req, res) => {
+  res.json({ message: "All Users", users });
 });
 
-app.put("/user", (req, res) => {
-  res.json({ message: "User updated successfully!" });
+// Read Single User
+app.get("/user/:username", (req, res) => {
+  const { username } = req.params;
+  let user = users.find(
+    (user) => user.username?.toLowerCase() == username.toLowerCase(),
+  );
+  res.json({ message: "Single User", user });
+});
+
+// Delete User
+app.delete("/user/:username", (req, res) => {
+  const { username } = req.params;
+  users = users.filter(
+    (user) => user.username?.toLowerCase() !== username.toLowerCase(),
+  );
+  res.json({ message: "User deleted successfully!", users });
+});
+
+// Edit User
+app.put("/user/:username", (req, res) => {
+  const { username } = req.params;
+  const index = users.findIndex(
+    (user) => user.username?.toLowerCase() === username.toLowerCase(),
+  );
+  if (index === -1) {
+    return res.status(404).json({
+      message: "User not found",
+    });
+  }
+  users[index] = {
+    ...users[index],
+    ...req.body,
+  };
+  res.json({ message: "User updated successfully!", users });
+});
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000");
 });
